@@ -19,10 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author SHUBHAM
- */
+
 public class Server {
 
     int port;
@@ -88,12 +85,9 @@ private static class ServerThread implements Runnable {
 		 
 		System. out.println("*Client("+id+") :"+s);
 		System.out.println("Server : ");
-		//s=stdin.readLine();
-                       // s=sc.nextLine();
+		
                         String submitCommand = s.substring(0,6);
-                        System.out.println(submitCommand);
                         String getCommand =s.substring(0,3);
-                        System.out.println(getCommand);
                         if(submitCommand.equals("submit")) {
                       
                      	   String[] keyValuePair = s.substring(7,s.length()).split(",");
@@ -103,8 +97,13 @@ private static class ServerThread implements Runnable {
                      	    
                         }else if(getCommand.equals("get")) {
                      	   String key =s.substring(4,s.length());
-                     	   String value = data.get(key);
-                     	   cout.println(value);
+                     	   if(data.containsKey(key)) {
+                     		  String value = data.get(key);
+                        	   	  cout.println(value);
+                     	   }else {
+                     		   cout.println("No stored value for "+key);
+                     	   }
+                     	  
                      	    
                         }else if (s.equalsIgnoreCase("bye")){
                         cout.println("BYE");
@@ -112,7 +111,7 @@ private static class ServerThread implements Runnable {
                         System.out.println("Connection ended by server");
                         break;
                     }
-		//cout.println(s);
+		
 	}
 	
         
