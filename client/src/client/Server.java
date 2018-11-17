@@ -1,73 +1,135 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package client;
 
-
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class Server
-{
-  ServerSocket ss;
-  Socket s;
-  DataInputStream dis;
-  DataOutputStream dos;
-  HashMap<String,String> data = new HashMap<String,String>();
-  
-  public Server()
-  {
-      try
-      {
-          System.out.println("Server Started");
-      ss=new ServerSocket(12);
-      s=ss.accept();
-      System.out.println(s);
-      System.out.println("CLIENT CONNECTED");
-          dis= new DataInputStream(s.getInputStream());
-          dos= new DataOutputStream(s.getOutputStream());
-       
-        	  ServerChat();
-          
-          
-      }
-      catch(Exception e)
-      {
-           System.out.println(e);
-      }
-  }
+/**
+ *
+ * @author SHUBHAM
+ */
+public class Server {
 
-  public static void main (String as[])
-  {
-       new Server();
-  }
+    int port;
+    ServerSocket server=null;
+    Socket client=null;
+    ExecutorService pool = null;
+    int clientcount=0;
+    static HashMap<String,String> data = new HashMap<String,String>();
+    
+    public static void main(String[] args) throws IOException {
+        Server serverobj=new Server(5000);
+        serverobj.startServer();
+    }
+    
+    Server(int port){
+        this.port=port;
+        pool = Executors.newFixedThreadPool(5);
+    }
 
-  public void ServerChat() throws IOException
-  {
-       String str, s1;
-       do
-       {
-           str=dis.readUTF();
-           System.out.println("Client Message:"+str);
-       String submitCommand =str.substring(0,6);
-       String getCommand =str.substring(0,3);
-       if(submitCommand.equals("submit")) {
-     
-    	   String[] keyValuePair = str.substring(7,str.length()).split(",");
-    	   data.put(keyValuePair[0],keyValuePair[1]);
-    	   System.out.println(Arrays.asList(data));
-    	   dos.writeUTF("b");
-    	   dos.flush();
-       }else if(getCommand.equals("get")) {
-    	   String key =str.substring(4,str.length());
-    	   String value = data.get(key);
-    	   dos.writeUTF(value);
-    	   dos.flush();
-       }
-       //BufferedReader br=new BufferedReader(new   InputStreamReader(System.in));
-       //s1=br.readLine();
-       //dos.writeUTF(s1);
-      // dos.flush();
-   }
-   while(true);
-  }
+    public void startServer() throws IOException {
+        
+        server=new ServerSocket(5000);
+        System.out.println("Server Booted");
+    System.out.println("Any client can stop the server by sending -1");
+    while(true)
+    {
+        client=server.accept();
+        clientcount++;
+        ServerThread runnable= new ServerThread(client,clientcount,this);
+        pool.execute(runnable);
+    }
+    
+}
+
+private static class ServerThread implements Runnable {
+    
+    Server server=null;
+    Socket client=null;
+    BufferedReader cin;
+    PrintStream cout;
+    Scanner sc=new Scanner(System.in);
+    int id;
+    String s;
+    
+    ServerThread(Socket client, int count ,Server server ) throws IOException {
+        
+        this.client=client;
+        this.server=server;
+        this.id=count;
+        System.out.println("Connection "+id+" established with client "+client);
+        
+        cin=new BufferedReader(new InputStreamReader(client.getInputStream()));
+        cout=new PrintStream(client.getOutputStream());
+    
+    }
+
+    @Override
+    public void run() {
+        int x=1;
+     try{
+     while(true){
+           s=cin.readLine();
+		 
+		System. out.println("*Client("+id+") :"+s);
+		System.out.println("Server : ");
+		//s=stdin.readLine();
+                       // s=sc.nextLine();
+                        String submitCommand = s.substring(0,6);
+                        System.out.println(submitCommand);
+                        String getCommand =s.substring(0,3);
+                        System.out.println(getCommand);
+                        if(submitCommand.equals("submit")) {
+                      
+                     	   String[] keyValuePair = s.substring(7,s.length()).split(",");
+                     	   data.put(keyValuePair[0],keyValuePair[1]);
+                     	   cout.println(Arrays.asList(data));
+                     	   //cout.println("received");
+                     	    
+                        }else if(getCommand.equals("get")) {
+                     	   String key =s.substring(4,s.length());
+                     	   String value = data.get(key);
+                     	   cout.println(value);
+                     	    
+                        }else if (s.equalsIgnoreCase("bye")){
+                        cout.println("BYE");
+                        x=0;
+                        System.out.println("Connection ended by server");
+                        break;
+                    }
+		//cout.println(s);
+	}
+	
+        
+            cin.close();
+            client.close();
+	cout.close();
+            if(x==0) {
+		System.out.println( "Server cleaning up." );
+		System.exit(0);
+            }
+     } 
+     catch(IOException ex){
+         System.out.println("Error : "+ex);
+         }
+            
+ 		
+        }
+    }
+    
 }

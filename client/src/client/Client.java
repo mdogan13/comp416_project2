@@ -1,48 +1,46 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package client;
 
-import java.io.*;
-import java.net.*;
-
-public class Client
-{
-    Socket s;
-    DataInputStream din;
-    DataOutputStream dout;
-    public Client()
-    {
-         try
-         {
-        	 String serverName = "192.168.1.108";  // Indicating the place to put Server's IP
-        	
-        	 s = new Socket(serverName, 12);
-             System.out.println(s);
-             din= new DataInputStream(s.getInputStream());
-             dout= new DataOutputStream(s.getOutputStream());
-             //..
-            	  ClientChat();
-             
-           
-         }
-         catch(Exception e)
-         {
-             System.out.println(e);
-         }
-     }
-     public void ClientChat() throws IOException
-     {
-           BufferedReader br= new BufferedReader(new InputStreamReader(System.in));
-           String s1;
-           do
-           {
-               s1=br.readLine();
-               dout.writeUTF(s1);
-               dout.flush();
-               System.out.println("Server Message:"+din.readUTF());
-           }
-           while(!s1.equals("stop"));
-    }
-    public static void main(String as[])
-    {
-        new Client(); 
-    }
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+/**
+ *
+ * @author SHUBHAM
+ */
+public class Client {
+    
+    public static void main(String args[]) throws Exception
+	{
+		Socket sk=new Socket("192.168.1.102",5000);
+		BufferedReader sin=new BufferedReader(new InputStreamReader(sk.getInputStream()));
+		PrintStream sout=new PrintStream(sk.getOutputStream());
+		BufferedReader stdin=new BufferedReader(new InputStreamReader(System.in));
+		String s;
+		while (  true )
+		{
+			System.out.print("Client : ");
+			s=stdin.readLine();
+			sout.println(s);
+                        if ( s.equalsIgnoreCase("BYE") )
+                        {
+                           System.out.println("Connection ended by client");
+ 			   break;
+                        }
+			s=sin.readLine();
+			System.out.print("Server : "+s+"\n");
+  			
+		}
+		 sk.close();
+		 sin.close();
+		 sout.close();
+ 		stdin.close();
+	}
+    
 }
