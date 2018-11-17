@@ -80,16 +80,15 @@ public class Server {
 					System. out.println("Client("+id+") :"+s);
 					System.out.println("Server : ");
 
-					String submitCommand = s.substring(0,6);
-					String getCommand =s.substring(0,3);
-					if(submitCommand.equals("submit")) {
+					if(s.contains("submit")) {
 
 						String[] keyValuePair = s.substring(7,s.length()).split(",");
 						data.put(keyValuePair[0],keyValuePair[1]);
-						cout.println(Arrays.asList(data));
+						cout.println("OK");
+						//cout.println(Arrays.asList(data));
 						//cout.println("received");
 
-					}else if(getCommand.equals("get")) {
+					}else if(s.contains("get")) {
 						String key =s.substring(4,s.length());
 						if(data.containsKey(key)) {
 							String value = data.get(key);
@@ -104,6 +103,8 @@ public class Server {
 						x=0;
 						System.out.println("Connection ended by server");
 						break;
+					}else {
+						cout.println("Incorrect command/usage. Try submit <key,value> or get <key>");
 					}
 
 				}
