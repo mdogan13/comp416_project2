@@ -3,12 +3,12 @@ package client;
 import java.io.*;
 import java.net.*;
 
-public class MyClient1
+public class Client
 {
     Socket s;
     DataInputStream din;
     DataOutputStream dout;
-    public MyClient1()
+    public Client()
     {
          try
          {
@@ -43,6 +43,6 @@ public class MyClient1
     }
     public static void main(String as[])
     {
-        new MyClient1(); 
+        new Client(); 
     }
 }
