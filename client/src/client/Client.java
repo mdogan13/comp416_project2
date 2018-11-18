@@ -10,7 +10,7 @@ public class Client {
 
 	public static void main(String args[]) throws Exception
 	{
-		String serverIP="192.168.1.108";
+		String serverIP="localhost";
 		Socket sk=new Socket(serverIP,5000);
 		BufferedReader sin=new BufferedReader(new InputStreamReader(sk.getInputStream()));
 		PrintStream sout=new PrintStream(sk.getOutputStream());
